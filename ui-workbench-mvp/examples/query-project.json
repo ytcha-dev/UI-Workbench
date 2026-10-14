@@ -1,0 +1,133 @@
+{
+  "version": 1,
+  "profile": {
+    "name": "公司專案 Demo",
+    "cssFramework": "bootstrap",
+    "runtime": "vanilla",
+    "razor": false,
+    "tomselect": true,
+    "cssUrls": [],
+    "jsUrls": [],
+    "customCss": ""
+  },
+  "nodes": [
+    {
+      "id": "nmv89w7q4_1",
+      "type": "section",
+      "props": {
+        "title": "請款單查詢",
+        "padding": 24,
+        "gap": 16,
+        "background": "#ffffff",
+        "radius": 12
+      },
+      "children": [
+        {
+          "id": "nmv89w7q4_b",
+          "type": "text",
+          "props": {
+            "text": "請輸入查詢條件，下方資料為展示用範例。"
+          }
+        },
+        {
+          "id": "nmv89w7q4_2",
+          "type": "columns2",
+          "props": {
+            "gap": 12,
+            "padding": 8,
+            "background": "transparent",
+            "radius": 8
+          },
+          "children": [
+            {
+              "id": "nmv89w7q4_3",
+              "type": "input",
+              "props": {
+                "label": "請款單號",
+                "field": "billNo",
+                "placeholder": "請輸入單號"
+              }
+            },
+            {
+              "id": "nmv89w7q4_4",
+              "type": "select",
+              "props": {
+                "label": "請款類別",
+                "field": "feeType",
+                "options": "全部,國內費用,國外費用"
+              }
+            }
+          ]
+        },
+        {
+          "id": "nmv89w7q4_5",
+          "type": "columns2",
+          "props": {
+            "gap": 12,
+            "padding": 8,
+            "background": "transparent",
+            "radius": 8
+          },
+          "children": [
+            {
+              "id": "nmv89w7q4_6",
+              "type": "input",
+              "props": {
+                "label": "起始日期",
+                "field": "startDate",
+                "placeholder": "YYYY-MM-DD"
+              }
+            },
+            {
+              "id": "nmv89w7q4_7",
+              "type": "tomselect",
+              "props": {
+                "label": "申請部門",
+                "field": "department",
+                "options": "全部部門,業務部,會計部,資訊部"
+              }
+            }
+          ]
+        },
+        {
+          "id": "nmv89w7q4_8",
+          "type": "row",
+          "props": {
+            "gap": 12,
+            "padding": 8,
+            "background": "transparent",
+            "radius": 8
+          },
+          "children": [
+            {
+              "id": "nmv89w7q4_9",
+              "type": "button",
+              "props": {
+                "text": "查詢資料",
+                "variant": "primary",
+                "action": "onSearch"
+              }
+            },
+            {
+              "id": "nmv89w7q4_a",
+              "type": "button",
+              "props": {
+                "text": "清除條件",
+                "variant": "secondary",
+                "action": "onReset"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "nmv89w7q4_c",
+      "type": "table",
+      "props": {
+        "columns": "單號,客戶,金額,狀態",
+        "rows": "REQ-001,遠東貿易,12500,待確認\nREQ-002,世界物流,8800,已完成"
+      }
+    }
+  ]
+}

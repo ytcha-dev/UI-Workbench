@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>UI Workbench — Visual Component Studio</title>
+  <link rel="stylesheet" href="./src/styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <div class="brand"><div class="brand-icon">U<span>W</span></div><div><div class="brand-title">UI WORKBENCH <span class="alpha">ALPHA 0.1</span></div><div class="brand-subtitle">Visual Component Studio · 技術驗證版</div></div></div>
+      <div class="header-actions">
+        <span class="autosave" id="autosave-label"><span class="green-dot"></span> 自動儲存</span>
+        <button class="header-btn" id="btn-settings" title="專案設定">⚙ <span>專案環境</span></button>
+        <button class="header-btn" id="btn-import">↥ <span>匯入</span></button>
+        <button class="header-btn" id="btn-save-json">↧ <span>儲存 JSON</span></button>
+        <button class="header-btn primary" id="btn-export">⌘ <span>查看 / 匯出程式碼</span></button>
+      </div>
+    </header>
+    <div class="workspace">
+      <aside class="sidebar">
+        <div class="sidebar-top"><div class="sidebar-title">資源面板</div><div class="sidebar-description">拖曳元件到畫布，或點擊加入</div></div>
+        <div class="mini-tabs"><button class="mini-tab active" data-left-tab="catalog">▦ 元件庫</button><button class="mini-tab" data-left-tab="layers">☷ 圖層</button></div>
+        <div id="catalog-panel" class="side-content">
+          <div class="search-row"><span>⌕</span><input type="search" id="catalog-search" placeholder="搜尋元件，例如 Table..." /></div>
+          <div id="catalog-list"></div>
+        </div>
+        <div id="layers-panel" class="side-content hidden"><div id="layer-tree"></div></div>
+        <div class="sidebar-bottom"><span class="pulse-dot"></span> 共 <b id="component-count">18</b> 種元件範本<br/><small>正在使用獨立、無依賴的編輯核心</small></div>
+      </aside>
+      <main class="main-stage">
+        <div class="canvas-toolbar">
+          <div class="toolbar-left"><span class="toolbar-name" id="project-name">公司專案 Demo</span><span class="toolbar-sep">/</span><span class="muted">視覺工作區</span><span class="tag-blue">PoC</span></div>
+          <div class="toolbar-right">
+            <select id="template-select" title="選擇範例模板"><option value="query">範例：查詢表單</option><option value="maintenance">範例：資料維護</option><option value="blank">空白畫布</option></select>
+            <span class="toolbar-divider"></span>
+            <button class="icon-btn" id="btn-undo" title="復原 (Ctrl+Z)">↶</button><button class="icon-btn" id="btn-redo" title="重做 (Ctrl+Shift+Z)">↷</button>
+            <span class="toolbar-divider"></span>
+            <div class="segmented" id="screen-choices"><button class="active" data-size="desktop" title="桌面">▣</button><button data-size="tablet" title="平板">▥</button><button data-size="mobile" title="手機">▯</button></div>
+            <button class="toolbar-btn" id="btn-preview">▷ 預覽</button>
+          </div>
+        </div>
+        <div class="stage-scroll" id="stage-scroll">
+          <div class="stage-note"><span class="green-dot"></span> 可拖放與巢狀排列 <span class="bullet">·</span> 點選元件後在右側修改屬性 <span class="bullet">·</span> 按「預覽」載入真正的第三方資源</div>
+          <div class="artboard-wrap" id="artboard-wrap">
+            <div class="artboard-top"><span class="artboard-signal">● ● ●</span><span id="artboard-title">Expense / Query</span><span class="artboard-dimensions" id="screen-label">Desktop · Responsive</span></div>
+            <div class="artboard" id="artboard" aria-label="元件編輯畫布">
+              <div id="editor-canvas" class="editor-canvas"></div>
+              <div id="preview-canvas" class="preview-canvas hidden"><iframe id="preview-frame" sandbox="allow-scripts" title="已隔離的執行預覽"></iframe></div>
+            </div>
+          </div>
+          <div class="stage-footer"><span>提示：可將元件拖入容器；拖動畫布內元件可重新排序。</span><span id="status-label">0 個畫布節點</span></div>
+        </div>
+      </main>
+      <aside class="inspector">
+        <div class="inspector-head"><div><div class="sidebar-title">屬性編輯器</div><div class="sidebar-description">Properties & Configuration</div></div><button class="icon-btn" id="btn-close-selection" title="取消選取">×</button></div>
+        <div id="inspector-content"></div>
+        <div class="inspector-footer">Data Binding / Callback 僅定義介面<br/>不會自行呼叫任何後端 API。</div>
+      </aside>
+    </div>
+    <footer class="status-bar"><span><strong>UI WORKBENCH</strong> · MVP / LOCAL ONLY</span><span id="footer-runtime">Bootstrap 5 · Vanilla JS</span><span id="footer-count">Canvas Ready</span></footer>
+  </div>
+
+  <div class="modal-backdrop hidden" id="settings-modal" role="dialog" aria-modal="true" aria-label="專案環境設定">
+    <div class="modal settings-modal">
+      <div class="modal-head"><div><h2>專案環境設定</h2><p>選擇現有專案的樣式與依賴。Preview 在 sandbox iframe 中執行。</p></div><button class="modal-close" data-close="settings">×</button></div>
+      <div class="modal-body">
+        <div class="settings-grid">
+          <label class="property"><span>專案名稱</span><input id="setting-name" /></label>
+          <label class="property"><span>CSS Framework</span><select id="setting-css"><option value="bootstrap">Bootstrap 5</option><option value="tailwind">Tailwind CSS（PoC Browser）</option><option value="native">原生 CSS / 無框架</option></select></label>
+          <label class="property"><span>JS Runtime</span><select id="setting-runtime"><option value="vanilla">Vanilla JavaScript</option><option value="vue">Vue 3 Global (非 .vue)</option></select></label>
+          <label class="property checkbox-line"><input type="checkbox" id="setting-tomselect" /> <span>啟用 Tom Select（有使用時才引用）</span></label>
+          <label class="property checkbox-line"><input type="checkbox" id="setting-razor" /> <span>Vue 事件產生 Razor @@click 寫法</span></label>
+        </div>
+        <div class="settings-section"><h3>自訂外部依賴（選用）</h3><p>每行一個 HTTPS/HTTP URL。只對信任的資源使用此功能，載入後會在隔離預覽中執行。</p>
+          <label class="property"><span>額外 CSS URLs</span><textarea id="setting-css-urls" rows="3" placeholder="https://intranet.example.com/site.css"></textarea></label>
+          <label class="property"><span>額外 JS URLs</span><textarea id="setting-js-urls" rows="3" placeholder="https://intranet.example.com/component.js"></textarea></label>
+          <label class="property"><span>自訂 CSS（套用於 Preview / 匯出結果）</span><textarea id="setting-custom-css" rows="5" placeholder="/* 在這裡加入專案 CSS */"></textarea></label>
+        </div>
+        <div class="notice">ⓘ 專案 Profile 只描述依賴。平台不會讀取你的 Visual Studio 解決方案，也不會自動掃描原始程式碼。</div>
+      </div>
+      <div class="modal-actions"><button class="btn light" data-close="settings">取消</button><button class="btn blue" id="btn-apply-settings">儲存設定</button></div>
+    </div>
+  </div>
+  <div class="modal-backdrop hidden" id="export-modal" role="dialog" aria-modal="true" aria-label="程式碼輸出">
+    <div class="modal export-modal">
+      <div class="modal-head"><div><h2>程式碼輸出</h2><p>這是可執行的完整 HTML 範例；整合至既有 MVC 專案時可擷取所需片段。</p></div><button class="modal-close" data-close="export">×</button></div>
+      <div class="export-options"><label>輸出目標 <select id="export-mode"><option value="vanilla">HTML + Vanilla JS</option><option value="vue">Vue 3 Global（不使用 .vue）</option></select></label><span id="export-summary"></span></div>
+      <div class="code-wrap"><div class="code-head"><span>index.html</span><span id="export-lines">0 lines</span></div><textarea id="export-code" spellcheck="false" readonly></textarea></div>
+      <div class="modal-actions"><button class="btn light" id="btn-copy-code">▣ 複製程式碼</button><button class="btn light" id="btn-download-html">↧ 下載 HTML</button><button class="btn blue" data-close="export">完成</button></div>
+    </div>
+  </div>
+  <input id="file-import" class="hidden" type="file" accept=".json,application/json" />
+  <div id="toast" role="status" aria-live="polite"></div>
+  <script type="module" src="./src/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>公司專案 Demo</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.6.2/dist/css/tom-select.css">
+<style>
+:root{--uiw-accent:#2563eb;--uiw-ink:#243047;--uiw-border:#dce3ed;--uiw-muted:#758299;--uiw-back:#f4f7fb}
+*{box-sizing:border-box} body{margin:0;background:var(--uiw-back);font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--uiw-ink)}
+.uiw-root{max-width:1080px;margin:0 auto;padding:28px 22px;display:flex;flex-direction:column;gap:16px}
+.uiw-section,.uiw-card{display:flex;flex-direction:column;gap:14px;background:#fff;border:1px solid var(--uiw-border);border-radius:12px;padding:22px;box-shadow:0 3px 14px rgba(41,66,100,.035)}
+.uiw-section-title,.uiw-card-title{margin:0 0 4px;font-size:18px;font-weight:700;letter-spacing:-.3px}.uiw-card-title{font-size:16px}
+.uiw-row{display:flex;flex-direction:row;flex-wrap:wrap;gap:12px;align-items:end}.uiw-column{display:flex;flex-direction:column;gap:12px;min-width:0;flex:1}.uiw-columns2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.uiw-heading{margin:4px 0 0}.uiw-text{color:#76839a;font-size:13px;margin:0}.uiw-divider{border:0;border-top:1px solid var(--uiw-border);width:100%}
+.uiw-field{display:flex;flex-direction:column;gap:7px;flex:1;min-width:0;font-size:12.5px;font-weight:650;color:#3c4b63}
+.uiw-control{font:inherit;font-weight:400;min-width:0;width:100%;height:38px;padding:8px 10px;background:#fff;border:1px solid #ccd5e2;border-radius:7px;color:var(--uiw-ink);outline:none}.uiw-control:focus{border-color:var(--uiw-accent);box-shadow:0 0 0 3px rgba(37,99,235,.09)}
+textarea.uiw-control{height:auto;min-height:90px}.uiw-check{display:inline-flex;gap:9px;align-items:center;font-size:13px;cursor:pointer}
+.uiw-btn{border:1px solid transparent;border-radius:7px;padding:9px 16px;font-size:13px;font-weight:650;cursor:pointer;white-space:nowrap}.uiw-btn-primary{background:var(--uiw-accent);color:white}.uiw-btn-secondary{background:#e8edf4;color:#334155}.uiw-btn-danger{background:#dc3545;color:#fff}.uiw-btn-outline{background:#fff;color:var(--uiw-accent);border-color:#c5d6fa}.uiw-btn:hover{filter:brightness(.97)}
+.uiw-actions{display:flex;gap:10px;flex-wrap:wrap}.uiw-badge{display:inline-block;align-self:flex-start;border-radius:99px;padding:3px 10px;background:#eff3f8;color:#576379;font-size:12px;font-weight:650}.uiw-alert{padding:11px 14px;border-radius:7px;background:#eaf4ff;color:#275b87;font-size:13px}
+.uiw-badge.uiw-success{background:#dbf6e6;color:#167548}.uiw-badge.uiw-warning{background:#fff1d0;color:#936307}.uiw-badge.uiw-danger{background:#ffe4e5;color:#b33343}.uiw-badge.uiw-info{background:#e2f1ff;color:#26618b}.uiw-alert.uiw-success{background:#e5f8ed;color:#167548}.uiw-alert.uiw-warning{background:#fff6dd;color:#936307}.uiw-alert.uiw-danger{background:#ffe9e8;color:#aa3240}
+.uiw-table-wrap{overflow:auto;border:1px solid var(--uiw-border);border-radius:10px;background:#fff}.uiw-table{border-collapse:collapse;width:100%;font-size:13px;text-align:left}.uiw-table th{background:#f5f7fb;color:#69768c;font-weight:700}.uiw-table td,.uiw-table th{padding:12px 15px;border-bottom:1px solid #edf0f6}.uiw-table tr:last-child td{border:0}
+.uiw-root[data-theme="tailwind"]{--uiw-accent:#0f766e}.uiw-root[data-theme="native"]{--uiw-accent:#6d5efc}
+@media(max-width:620px){.uiw-columns2{grid-template-columns:1fr}.uiw-root{padding:12px}.uiw-section,.uiw-card{padding:15px}}
+
+</style>
+</head>
+<body>
+<div id="uiw-app" class="uiw-root" data-theme="bootstrap">
+<section data-uiw-id="nmv89w7q4_1" class="uiw-section card" style="padding:24px;gap:16px;border-radius:12px;background:#ffffff"><h2 class="uiw-section-title">請款單查詢</h2><p data-uiw-id="nmv89w7q4_b" class="uiw-text">請輸入查詢條件，下方資料為展示用範例。</p>
+<div data-uiw-id="nmv89w7q4_2" class="uiw-columns2" style="padding:8px;gap:12px;border-radius:8px;background:transparent"><label data-uiw-id="nmv89w7q4_3" class="uiw-field"><span>請款單號</span><input class="uiw-control form-control" v-model="form.billNo" placeholder="請輸入單號" /></label>
+<label data-uiw-id="nmv89w7q4_4" class="uiw-field"><span>請款類別</span><select class="uiw-control form-control form-select" v-model="form.feeType"><option value="">請選擇</option><option value="全部">全部</option><option value="國內費用">國內費用</option><option value="國外費用">國外費用</option></select></label></div>
+<div data-uiw-id="nmv89w7q4_5" class="uiw-columns2" style="padding:8px;gap:12px;border-radius:8px;background:transparent"><label data-uiw-id="nmv89w7q4_6" class="uiw-field"><span>起始日期</span><input class="uiw-control form-control" v-model="form.startDate" placeholder="YYYY-MM-DD" /></label>
+<label data-uiw-id="nmv89w7q4_7" class="uiw-field"><span>申請部門</span><select class="uiw-control form-control uiw-tom-select form-select" v-model="form.department"><option value="">請選擇</option><option value="全部部門">全部部門</option><option value="業務部">業務部</option><option value="會計部">會計部</option><option value="資訊部">資訊部</option></select></label></div>
+<div data-uiw-id="nmv89w7q4_8" class="uiw-row" style="padding:8px;gap:12px;border-radius:8px;background:transparent"><button data-uiw-id="nmv89w7q4_9" type="button" class="uiw-btn uiw-btn-primary btn btn-primary" @click="emitAction('onSearch')">查詢資料</button>
+<button data-uiw-id="nmv89w7q4_a" type="button" class="uiw-btn uiw-btn-secondary btn btn-secondary" @click="emitAction('onReset')">清除條件</button></div></section>
+<div data-uiw-id="nmv89w7q4_c" class="uiw-table-wrap"><table class="uiw-table table"><thead><tr><th>單號</th><th>客戶</th><th>金額</th><th>狀態</th></tr></thead><tbody><tr><td>REQ-001</td><td>遠東貿易</td><td>12500</td><td>待確認</td></tr><tr><td>REQ-002</td><td>世界物流</td><td>8800</td><td>已完成</td></tr></tbody></table></div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.6.2/dist/js/tom-select.complete.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
+<script>
+const { createApp } = Vue;
+  window.UIWorkbenchCallbacks = window.UIWorkbenchCallbacks || {};
+  function runCallback(name, payload){
+    const fn = window.UIWorkbenchCallbacks[name];
+    if (typeof fn === 'function') fn(payload);
+    else console.info('[UIWorkbench] callback:', name, payload);
+  }
+  createApp({
+    data() { return { form: {"billNo":"","feeType":"","startDate":"","department":""} }; },
+    methods: {
+      emitAction(name) { runCallback(name, { ...this.form }); }
+    },
+    mounted() { if (window.TomSelect) document.querySelectorAll('.uiw-tom-select').forEach(el => { if (!el.tomselect) new TomSelect(el, { create: false }); }); }
+  }).mount('#uiw-app');
+</script>
+</body>
+</html>

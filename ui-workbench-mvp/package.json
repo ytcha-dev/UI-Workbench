@@ -1,0 +1,11 @@
+{
+  "name": "ui-workbench-mvp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Zero-build visual UI component workbench proof of concept",
+  "scripts": {
+    "start": "python -m http.server 8000",
+    "test": "node --test"
+  }
+}
