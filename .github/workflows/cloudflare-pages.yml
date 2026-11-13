@@ -1,0 +1,116 @@
+name: Deploy Cloudflare Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/cloudflare-pages.yml'
+      - 'ui-workbench-mvp/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cloudflare-pages-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: ui-workbench-mvp
+    env:
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      PAGES_PROJECT: ytcha-ui-workbench
+      WRANGLER_SEND_METRICS: 'false'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '24'
+
+      - name: Test application
+        run: npm test
+
+      - name: Verify Cloudflare access and ensure Pages project exists
+        run: |
+          node --input-type=module <<'JS'
+          const { CLOUDFLARE_ACCOUNT_ID: account, CLOUDFLARE_API_TOKEN: token, PAGES_PROJECT: project } = process.env;
+          for (const name of ['CLOUDFLARE_ACCOUNT_ID', 'CLOUDFLARE_API_TOKEN']) {
+            if (!process.env[name]) throw new Error(`Missing GitHub Actions secret: ${name}`);
+          }
+          if (!/^[a-f0-9]{32}$/i.test(account)) throw new Error('CLOUDFLARE_ACCOUNT_ID must be the 32-character account ID, not an email or Zone ID.');
+          const base = `https://api.cloudflare.com/client/v4/accounts/${account}/pages/projects`;
+          async function request(url, options = {}) {
+            const response = await fetch(url, {
+              ...options,
+              headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+              signal: AbortSignal.timeout(30000)
+            });
+            const body = await response.json();
+            return { response, body };
+          }
+          let { response, body } = await request(`${base}/${project}`);
+          if (response.status === 404) {
+            ({ response, body } = await request(base, {
+              method: 'POST', body: JSON.stringify({ name: project, production_branch: 'main' })
+            }));
+          }
+          if (!response.ok || !body.success) {
+            throw new Error(`Cloudflare Pages API rejected access (HTTP ${response.status}). Check Account ID, token account scope, and Cloudflare Pages Edit permission. Error codes: ${(body.errors || []).map(e => e.code).join(', ')}`);
+          }
+          if (body.result.production_branch !== 'main') throw new Error('Existing Pages project uses another production branch; refusing to change it automatically.');
+          console.log(`Cloudflare access verified; Pages project ready: ${body.result.name}`);
+          JS
+
+      - name: Stage public application files
+        run: |
+          mkdir -p "$RUNNER_TEMP/ui-workbench-site/src"
+          cp index.html "$RUNNER_TEMP/ui-workbench-site/index.html"
+          cp src/app.js src/core.js src/styles.css "$RUNNER_TEMP/ui-workbench-site/src/"
+
+      - name: Install deployment CLI
+        run: npm install --prefix "$RUNNER_TEMP/cloudflare-tools" --no-audit --no-fund --package-lock=false --save-exact wrangler@4.161.0
+
+      - name: Deploy production
+        run: |
+          "$RUNNER_TEMP/cloudflare-tools/node_modules/.bin/wrangler" pages deploy "$RUNNER_TEMP/ui-workbench-site" \
+            --project-name "$PAGES_PROJECT" --branch main --commit-hash "$GITHUB_SHA"
+
+      - name: Verify published revision and public assets
+        run: |
+          node --input-type=module <<'JS'
+          import { appendFileSync } from 'node:fs';
+          const { CLOUDFLARE_ACCOUNT_ID: account, CLOUDFLARE_API_TOKEN: token, PAGES_PROJECT: project, GITHUB_SHA: sha } = process.env;
+          const endpoint = `https://api.cloudflare.com/client/v4/accounts/${account}/pages/projects/${project}`;
+          let deployment;
+          for (let attempt = 0; attempt < 10; attempt++) {
+            const response = await fetch(endpoint, { headers: { Authorization: `Bearer ${token}` }, signal: AbortSignal.timeout(30000) });
+            const body = await response.json();
+            if (!response.ok || !body.success) throw new Error(`Cannot verify deployed revision (HTTP ${response.status}).`);
+            deployment = body.result.canonical_deployment;
+            if (deployment?.deployment_trigger?.metadata?.commit_hash === sha && deployment?.latest_stage?.status === 'success') break;
+            deployment = null;
+            await new Promise(resolve => setTimeout(resolve, 3000));
+          }
+          if (!deployment) throw new Error('No successful production deployment found for this workflow commit.');
+          const url = new URL(deployment.url);
+          if (url.protocol !== 'https:' || !url.hostname.endsWith('.pages.dev')) throw new Error('Unexpected deployment URL.');
+          for (const [path, marker] of [['/', 'Visual Component Studio'], ['/src/app.js', './core.js'], ['/src/core.js', 'generateHtml'], ['/src/styles.css', '.app-shell']]) {
+            let passed = false;
+            for (let attempt = 0; attempt < 10; attempt++) {
+              try {
+                const response = await fetch(new URL(path, url), { signal: AbortSignal.timeout(15000) });
+                if (response.ok && (await response.text()).includes(marker)) { passed = true; break; }
+              } catch {}
+              await new Promise(resolve => setTimeout(resolve, 3000));
+            }
+            if (!passed) throw new Error(`Public asset verification failed: ${path}`);
+          }
+          console.log(`Deployment verified: ${url.href}`);
+          appendFileSync(process.env.GITHUB_STEP_SUMMARY, `## Cloudflare Pages\n\nVerified deployment: ${url.href}\n\nCommit: ${sha}\n\nApplication tests and public asset checks passed.\n`);
+          JS
