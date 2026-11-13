@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#142437">
+  <title>Aster — 企業管理框架 · 深藍商務</title>
+  <link rel="stylesheet" href="./tokens.css">
+  <link rel="stylesheet" href="./app.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">跳至主要內容</a>
+  <aside class="sidebar" id="sidebar" aria-label="主要導覽"></aside>
+  <div class="mobile-shade" id="mobile-shade"></div>
+  <div class="workspace">
+    <header class="topbar">
+      <div class="topbar-left"><button class="icon-button" id="toggle-nav" aria-label="切換側邊選單" aria-expanded="true"></button><div id="breadcrumb" class="breadcrumb"></div></div>
+      <div class="topbar-right"><button class="search-trigger" id="global-search"><span id="search-icon"></span><span>搜尋功能</span><kbd>⌘ K</kbd></button><span class="topbar-divider"></span><span class="locale">繁體中文 <span>TW</span></span><button class="profile" id="profile-button" aria-label="範例使用者資訊"><span class="avatar">林</span><span>林怡安<small>營運管理部</small></span></button></div>
+    </header>
+    <main id="main" tabindex="-1"></main>
+    <footer class="page-footer"><span><i class="live-dot"></i> Aster Workspace <span class="footer-divider">/</span> 系統框架概念版</span><span>STYLE 01 <span class="footer-divider">·</span> 深藍商務</span></footer>
+  </div>
+  <dialog id="modal" aria-labelledby="modal-title"></dialog>
+  <dialog id="detail" class="detail-drawer" aria-labelledby="detail-title"></dialog>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

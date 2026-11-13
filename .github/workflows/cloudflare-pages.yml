@@ -72,6 +72,7 @@ jobs:
           mkdir -p "$RUNNER_TEMP/ui-workbench-site/src"
           cp index.html "$RUNNER_TEMP/ui-workbench-site/index.html"
           cp src/app.js src/core.js src/styles.css "$RUNNER_TEMP/ui-workbench-site/src/"
+          cp -R styles "$RUNNER_TEMP/ui-workbench-site/styles"
 
       - name: Install deployment CLI
         run: npm install --prefix "$RUNNER_TEMP/cloudflare-tools" --no-audit --no-fund --package-lock=false --save-exact wrangler@4.161.0
@@ -115,7 +116,7 @@ jobs:
           const url = new URL(deployment.url);
           if (url.protocol !== 'https:' || !url.hostname.endsWith('.pages.dev')) throw new Error('Unexpected deployment URL.');
           appendFileSync(process.env.GITHUB_STEP_SUMMARY, `## Cloudflare Pages\n\nDeployment: ${url.href}\n\nCommit: ${sha}\n`);
-          for (const [path, marker] of [['/', 'Visual Component Studio'], ['/src/app.js', './core.js'], ['/src/core.js', 'generateHtml'], ['/src/styles.css', '.app-shell']]) {
+          for (const [path, marker] of [['/', 'Visual Component Studio'], ['/src/app.js', './core.js'], ['/src/core.js', 'generateHtml'], ['/src/styles.css', '.app-shell'], ['/styles/enterprise/', 'Aster'], ['/styles/enterprise/app.js', './schema.js'], ['/styles/enterprise/schema.js', 'defaultModules'], ['/styles/enterprise/tokens.css', '--color-sidebar'], ['/styles/enterprise/app.css', '.sidebar']]) {
             let passed = false;
             for (let attempt = 0; attempt < 10; attempt++) {
               try {

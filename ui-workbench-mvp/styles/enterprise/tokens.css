@@ -1,0 +1,19 @@
+/* Style 01: reusable theme tokens for the second-stage Workbench adapter. */
+:root {
+  --color-primary: #3766e8;
+  --color-primary-hover: #2854cf;
+  --color-primary-soft: #edf2ff;
+  --color-sidebar: #142437;
+  --color-sidebar-soft: #21354c;
+  --color-background: #f5f7fb;
+  --color-surface: #fff;
+  --color-text: #223247;
+  --color-muted: #7b8799;
+  --color-border: #e8ecf2;
+  --color-success: #248a75;
+  --color-warning: #c98a27;
+  --radius-card: 12px;
+  --radius-control: 7px;
+  --sidebar-width: 248px;
+  --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif;
+}
