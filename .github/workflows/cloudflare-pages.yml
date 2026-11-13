@@ -85,21 +85,36 @@ jobs:
         run: |
           node --input-type=module <<'JS'
           import { appendFileSync } from 'node:fs';
+          process.on('uncaughtException', error => {
+            console.error(`::error::${error.message}`);
+            appendFileSync(process.env.GITHUB_STEP_SUMMARY, `\nVerification failed: ${error.message}\n`);
+            process.exitCode = 1;
+          });
           const { CLOUDFLARE_ACCOUNT_ID: account, CLOUDFLARE_API_TOKEN: token, PAGES_PROJECT: project, GITHUB_SHA: sha } = process.env;
-          const endpoint = `https://api.cloudflare.com/client/v4/accounts/${account}/pages/projects/${project}`;
+          const endpoint = `https://api.cloudflare.com/client/v4/accounts/${account}/pages/projects/${project}/deployments?per_page=10`;
           let deployment;
+          let observed = [];
           for (let attempt = 0; attempt < 10; attempt++) {
             const response = await fetch(endpoint, { headers: { Authorization: `Bearer ${token}` }, signal: AbortSignal.timeout(30000) });
             const body = await response.json();
             if (!response.ok || !body.success) throw new Error(`Cannot verify deployed revision (HTTP ${response.status}).`);
-            deployment = body.result.canonical_deployment;
-            if (deployment?.deployment_trigger?.metadata?.commit_hash === sha && deployment?.latest_stage?.status === 'success') break;
-            deployment = null;
+            observed = body.result.map(item => ({
+              commit: item.deployment_trigger?.metadata?.commit_hash,
+              environment: item.environment,
+              stage: item.latest_stage?.name,
+              status: item.latest_stage?.status
+            }));
+            deployment = body.result.find(item => item.deployment_trigger?.metadata?.commit_hash === sha && item.environment === 'production' && item.latest_stage?.status === 'success');
+            if (deployment) break;
             await new Promise(resolve => setTimeout(resolve, 3000));
           }
-          if (!deployment) throw new Error('No successful production deployment found for this workflow commit.');
+          if (!deployment) {
+            appendFileSync(process.env.GITHUB_STEP_SUMMARY, `Observed deployment metadata:\n\n\`\`\`json\n${JSON.stringify(observed, null, 2)}\n\`\`\`\n`);
+            throw new Error('No successful production deployment found for this workflow commit.');
+          }
           const url = new URL(deployment.url);
           if (url.protocol !== 'https:' || !url.hostname.endsWith('.pages.dev')) throw new Error('Unexpected deployment URL.');
+          appendFileSync(process.env.GITHUB_STEP_SUMMARY, `## Cloudflare Pages\n\nDeployment: ${url.href}\n\nCommit: ${sha}\n`);
           for (const [path, marker] of [['/', 'Visual Component Studio'], ['/src/app.js', './core.js'], ['/src/core.js', 'generateHtml'], ['/src/styles.css', '.app-shell']]) {
             let passed = false;
             for (let attempt = 0; attempt < 10; attempt++) {
@@ -112,5 +127,5 @@ jobs:
             if (!passed) throw new Error(`Public asset verification failed: ${path}`);
           }
           console.log(`Deployment verified: ${url.href}`);
-          appendFileSync(process.env.GITHUB_STEP_SUMMARY, `## Cloudflare Pages\n\nVerified deployment: ${url.href}\n\nCommit: ${sha}\n\nApplication tests and public asset checks passed.\n`);
+          appendFileSync(process.env.GITHUB_STEP_SUMMARY, '\nApplication tests and public asset checks passed.\n');
           JS
